@@ -144,7 +144,7 @@
     </div>
 
     <script>
-        let myLiffId = ""; // TODO: 稍後我們會從 LINE Developer 取得
+        let myLiffId = "2008445452-XRn1zq19";
         let lineUserId = ""; // 儲存 LINE User ID
 
         window.onload = function() {
@@ -158,11 +158,11 @@
             try {
                 statusEl.innerText = "LIFF SDK 載入中... (尚未設定 LIFF ID)";
                 
-                // TODO: 下一步我們會取消註解這段
-                // await liff.init({ liffId: myLiffId });
-                // const profile = await liff.getProfile();
-                // lineUserId = profile.userId;
-                // statusEl.innerText = "已成功取得 LINE 資料。";
+                // TODO: 下一步我們會取消註G解這段
+                await liff.init({ liffId: myLiffId }); //ˋ
+                const profile = await liff.getProfile(); //
+                lineUserId = profile.userId; //
+                statusEl.innerText = "已成功取得 LINE 資料。"; //
             } catch (e) {
                 statusEl.innerText = `LIFF 初始化失敗。這在註冊前是正常的。\n${e.toString()}`;
                 console.error(e);
