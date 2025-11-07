@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizFlow 帳號綁定</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    
+    <style>
+        /* 全局設定 */
+        * {
+            box-sizing: border-box; /* 讓 padding 不會撐爆寬度 */
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #e8f5e9; /* 1. 配色：淺綠色背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 容器與動畫 */
+        .container {
+            max-width: 400px;
+            width: 100%;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            /* 2. 動畫：容器淡入 */
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 標題與文字 */
+        h1 {
+            text-align: center;
+            color: #2e7d32; /* 1. 配色：深綠色標題 */
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        #message {
+            text-align: center;
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        /* 表單元件 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            /* 3. 動畫：流暢的過渡效果 */
+            transition: all 0.3s ease;
+        }
+
+        /* 3. 視覺效果：輸入框的 Focus (點擊時) 反饋 */
+        input[type="email"]:focus, input[type="password"]:focus {
+            border-color: #4CAF50; /* 1. 配色：主綠色 */
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+            outline: none;
+        }
+
+        /* 4. 按鈕與 Hover 反饋 */
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #4CAF50; /* 1. 配色：主綠色 */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            /* 3. 動畫：流暢的過渡效果 */
+            transition: all 0.3s ease;
+        }
+
+        /* 4. Hover 反饋：滑鼠移上去時 */
+        button:hover {
+            background-color: #45a049; /* 1. 配色：加深的綠色 */
+            /* 3. 視覺效果：按鈕輕微上浮 */
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 4. Hover 反饋：按鈕被點擊時 */
+        button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 狀態訊息 */
+        #status {
+            text-align: center;
+            margin-top: 20px;
+            color: #d32f2f; /* 錯誤訊息用紅色 */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>QuizFlow 帳號綁定</h1>
+        <p id="message">請登入或註冊以啟用測驗功能</p>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密碼</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" id="register-btn">註冊 / 登入</button>
+        </form>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        let myLiffId = ""; // TODO: 稍後我們會從 LINE Developer 取得
+        let lineUserId = ""; // 儲存 LINE User ID
+
+        window.onload = function() {
+            initializeLiff();
+            const form = document.getElementById('login-form');
+            form.addEventListener('submit', handleFormSubmit);
+        };
+
+        async function initializeLiff() {
+            const statusEl = document.getElementById('status');
+            try {
+                statusEl.innerText = "LIFF SDK 載入中... (尚未設定 LIFF ID)";
+                
+                // TODO: 下一步我們會取消註解這段
+                // await liff.init({ liffId: myLiffId });
+                // const profile = await liff.getProfile();
+                // lineUserId = profile.userId;
+                // statusEl.innerText = "已成功取得 LINE 資料。";
+            } catch (e) {
+                statusEl.innerText = `LIFF 初始化失敗。這在註冊前是正常的。\n${e.toString()}`;
+                console.error(e);
+            }
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault(); 
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const statusEl = document.getElementById('status');
+
+            if (!email || !password) {
+                statusEl.innerText = "Email 和密碼為必填項。";
+                return;
+            }
+            
+            statusEl.innerText = "正在處理... (尚未串接 API)";
+            console.log("表單提交:", email, password);
+            // TODO: 下一步，我們會在這裡呼叫後端 API
+        }
+    </script>
+
+</body>
+</html>
