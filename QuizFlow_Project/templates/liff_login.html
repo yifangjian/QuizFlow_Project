@@ -169,21 +169,34 @@
             }
         }
 
-        async function handleFormSubmit(event) {
-            event.preventDefault(); 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const statusEl = document.getElementById('status');
+        async function initializeLiff() {
+    const statusEl = document.getElementById('status');
+    try {
+        // 1. 初始化 LIFF
+        statusEl.innerText = "LIFF SDK 初始化中...";
+        await liff.init({ liffId: myLiffId });
 
-            if (!email || !password) {
-                statusEl.innerText = "Email 和密碼為必填項。";
-                return;
-            }
-            
-            statusEl.innerText = "正在處理... (尚未串接 API)";
-            console.log("表單提交:", email, password);
-            // TODO: 下一步，我們會在這裡呼叫後端 API
+        // 2. 🔥【關鍵修正】檢查是否已登入
+        if (!liff.isLoggedIn()) {
+            // 如果沒登入，LIFF 會自動導向 LINE 的登入頁面
+            // 您登入後，它會自動回來這裡
+            statusEl.innerText = "尚未登入，將導向登入頁面...";
+            liff.login();
+        } else {
+            // 3. 如果已登入，才去取得個人資料
+            statusEl.innerText = "已登入，正在取得 LINE 資料...";
+            const profile = await liff.getProfile();
+            lineUserId = profile.userId; // 將 User ID 存到全域變數
+
+            statusEl.innerText = "✅ 已成功取得 LINE 資料。";
+            console.log("LINE User ID:", lineUserId);
         }
+
+    } catch (e) {
+        statusEl.innerText = `LIFF 初始化失敗。\n${e.toString()}`;
+        console.error(e);
+    }
+}
     </script>
 
 </body>
