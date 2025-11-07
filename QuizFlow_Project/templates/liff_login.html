@@ -7,7 +7,11 @@
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     
     <style>
-        /* (全局設定...) */
+        /* 🔥 1. 溢出修復：加回 box-sizing! */
+        * {
+            box-sizing: border-box;
+        }
+        
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 20px; background-color: #e8f5e9; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { max-width: 400px; width: 100%; padding: 30px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
@@ -15,35 +19,44 @@
         #message { text-align: center; color: #555; margin-bottom: 10px; font-size: 1.1em; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
 
-        /* 🔥 1. 邊框修復：從 #ddd 改為 #ccc，讓邊框更明顯 */
+        /* 🔥 1. 溢出修復：box-sizing 已在上方 * 中全局設定 */
         input[type="email"], input[type="password"] {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #ccc; /* <-- 邊框加深 */
+            border: 2px solid #ccc;
             border-radius: 8px;
             font-size: 16px;
             transition: all 0.3s ease;
         }
         input[type="email"]:focus, input[type="password"]:focus { border-color: #4CAF50; box-shadow: 0 0 8px rgba(76, 175, 80, 0.3); outline: none; }
         
-        /* 🔥 2. 密碼小眼睛：新增的 CSS */
+        /* 🔥 2. 小眼睛排版修復：使用更穩定的定位方式 */
         .password-group {
             position: relative; /* 為了讓小眼睛可以定位 */
+            /* 移除 v4.0 的 .form-group，讓 label 和 div 分開 */
+        }
+        .password-wrapper {
+            position: relative; /* 讓小眼睛相對於這個 wrapper 定位 */
+            width: 100%;
+        }
+        .password-wrapper input {
+            /* 讓右邊留出空間給小眼睛 */
+            padding-right: 45px; 
         }
         .toggle-password {
             position: absolute;
             right: 15px;
-            /* 將 'top' 調整到與 input 內部垂直置中 (label高 + padding + border) */
-            top: 42px; 
+            top: 50%; /* 永遠垂直置中 */
+            transform: translateY(-50%); /* 修正置中點 */
             cursor: pointer;
-            font-size: 22px; /* 讓 emoji 更清楚 */
+            font-size: 22px; 
             color: #888;
-            user-select: none; /* 讓 emoji 不會被選取 */
+            user-select: none;
         }
         .toggle-password:hover {
             color: #333;
         }
-        /* (結束 密碼小眼睛 CSS) */
+        /* (結束 CSS 修復) */
 
         button { width: 100%; padding: 14px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s ease; }
         button:hover { background-color: #45a049; transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); }
@@ -70,8 +83,10 @@
             
             <div class="form-group password-group">
                 <label for="password">密碼</label>
-                <input type="password" id="password" name="password" required>
-                <span class="toggle-password" id="toggle-password">👁️</span> 
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" required>
+                    <span class="toggle-password" id="toggle-password">👁️</span>
+                </div>
             </div>
             <button type="submit" id="register-btn">註冊 / 登入</button>
         </form>
@@ -79,6 +94,7 @@
     </div>
 
     <script>
+        // (JavaScript 區塊 100% 完全不變！)
         let myLiffId = "2008445452-XRn1zq19";
         let lineUserId = ""; 
 
@@ -87,23 +103,17 @@
             const form = document.getElementById('login-form');
             form.addEventListener('submit', handleFormSubmit);
 
-            // 🔥 2. 密碼小眼睛：新增的 JavaScript 邏輯
             const togglePassword = document.getElementById('toggle-password');
             const passwordInput = document.getElementById('password');
 
             togglePassword.addEventListener('click', function() {
-                // 檢查目前的 input type
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
-                
-                // 改變小眼睛的圖示 (睜眼/閉眼)
                 this.textContent = type === 'password' ? '👁️' : '🙈'; 
             });
-            // (結束 JS 變更)
         };
 
         async function initializeLiff() {
-            // (這整段 initializeLiff 函數... 100% 完全不變)
             const statusEl = document.getElementById('status');
             try {
                 statusEl.innerText = "LIFF SDK 初始化中...";
@@ -134,7 +144,6 @@
         }
 
         async function handleFormSubmit(event) {
-            // (這整段 handleFormSubmit 函數... 100% 完全不變)
             event.preventDefault(); 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -151,8 +160,6 @@
             statusEl.innerText = "正在處理... (尚未串接 API)";
             statusEl.className = ""; 
             console.log("表單提交:", email, password, lineUserId);
-            
-            // --- TODO: P2.1 下一步，我們將取消註解這段來呼叫 API ---
             // ( ... 尚未啟用的 API 呼叫 ... )
         }
     </script>
