@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quizpie 帳號綁定</title>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    
     <style>
         * { box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 20px; background-color: #e8f5e9; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
@@ -14,72 +13,22 @@
         h1 { text-align: center; color: #2e7d32; margin-top: 0; margin-bottom: 10px; }
         #message { text-align: center; color: #555; margin-bottom: 10px; font-size: 1.1em; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
-
-        /* 🔥 1. 終極修復：將 input[type="text"] 也加入 CSS 選擇器！ */
-        input[type="email"], input[type="password"], input[type="text"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            /* 🔥 確保 iOS 瀏覽器不會亂加奇怪的陰影 */
-            -webkit-appearance: none; 
-            -moz-appearance: none;
-            appearance: none;
-        }
-        /* 🔥 1. 終極修復：:focus 也要加上！ */
-        input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus { 
-            border-color: #4CAF50; 
-            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3); 
-            outline: none; 
-        }
-        
+        input[type="email"], input[type="password"], input[type="text"] { width: 100%; padding: 12px 15px; border: 2px solid #ccc; border-radius: 8px; font-size: 16px; transition: all 0.3s ease; -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+        input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus { border-color: #4CAF50; box-shadow: 0 0 8px rgba(76, 175, 80, 0.3); outline: none; }
         .password-group { position: relative; }
         .password-wrapper { position: relative; width: 100%; }
-        /* 🔥 1. 終極修復：把 input[type="text"] 也加進來 */
-        .password-wrapper input[type="password"], .password-wrapper input[type="text"] { 
-            padding-right: 45px; 
-        }
-        .toggle-password {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #888;
-            background: none;
-            border: none;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .password-wrapper input[type="password"], .password-wrapper input[type="text"] { padding-right: 45px; }
+        .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888; background: none; border: none; padding: 5px; display: flex; align-items: center; justify-content: center; }
         .toggle-password:hover { color: #333; }
-
-        button[type="submit"] {
-            width: 100%;
-            padding: 14px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            margin-top: 25px; 
-        }
+        button[type="submit"] { width: 100%; padding: 14px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s ease; margin-top: 25px; }
         button[type="submit"]:hover { background-color: #45a049; transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); }
         button[type="submit"]:active { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); }
-        
         #status { text-align: center; margin-top: 20px; font-weight: bold; }
         .success-status { color: #2e7d32; }
         .error-status { color: #d32f2f; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1 id="main-title">Quizpie 帳號綁定</h1>
         <p id="message">請登入或註冊以啟用測驗功能</p>
@@ -105,13 +54,13 @@
     </div>
 
     <script>
-        // (JavaScript 區塊... 100% 完全不變)
         let myLiffId = "2008445452-XRn1zq19";
         let lineUserId = ""; 
         const svgIconShow = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
         const svgIconHide = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07l-5.02-5.02"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
 
         window.onload = function() {
+            // (window.onload ... 100% 完全不變)
             initializeLiff();
             const form = document.getElementById('login-form');
             form.addEventListener('submit', handleFormSubmit);
@@ -126,6 +75,7 @@
         };
 
         async function initializeLiff() {
+            // (initializeLiff ... 100% 完全不變)
             const statusEl = document.getElementById('status');
             try {
                 statusEl.innerText = "LIFF SDK 初始化中...";
@@ -155,12 +105,16 @@
             }
         }
 
+        // ----------------------------------------
+        // 🔥 P2.1：【重大更新】啟用 API 呼叫
+        // ----------------------------------------
         async function handleFormSubmit(event) {
             event.preventDefault(); 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const statusEl = document.getElementById('status');
             statusEl.className = "error-status"; 
+
             if (!email || !password) {
                 statusEl.innerText = "Email 和密碼為必填項。";
                 return;
@@ -169,10 +123,47 @@
                 statusEl.innerText = "錯誤：無法取得 LINE User ID，請重新整理頁面。";
                 return;
             }
-            statusEl.innerText = "正在處理... (尚未串接 API)";
-            statusEl.className = ""; 
-            console.log("表單提交:", email, password, lineUserId);
-            // ( ... 尚未啟用的 API 呼叫 ... )
+
+            // --- 🔥 程式碼已「啟用」(取消註解) ---
+            try {
+                statusEl.innerText = "正在綁定帳號...";
+                statusEl.className = ""; // 清除顏色
+                
+                // 注意：'/api/register-bind' 是「相對路徑」
+                // 它會自動呼叫 https://my-quizflow.onrender.com/api/register-bind
+                const response = await fetch('/api/register-bind', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        line_user_id: lineUserId
+                    })
+                });
+
+                const data = await response.json(); // 讀取後端的回覆
+
+                if (response.ok) { // HTTP 狀態碼 200-299
+                    statusEl.innerText = `✅ ${data.message || '綁定成功！'}\n請關閉此視窗。`;
+                    statusEl.className = "success-status"; // 綠色
+                    
+                    // 成功後可以禁用按鈕，防止重複提交
+                    document.getElementById('register-btn').disabled = true;
+                    
+                    // 2 秒後自動關閉 LIFF 視窗
+                    setTimeout(() => {
+                        liff.closeWindow();
+                    }, 2000); 
+
+                } else { // HTTP 狀態碼 4xx, 5xx
+                    statusEl.innerText = `錯誤：${data.error || '註冊失敗'}`;
+                    statusEl.className = "error-status"; // 紅色
+                }
+            } catch (e) {
+                statusEl.innerText = `網路錯誤：${e.toString()}`;
+                statusEl.className = "error-status"; // 紅色
+            }
+            // --- P2.1 啟用結束 ---
         }
     </script>
 
