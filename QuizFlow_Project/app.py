@@ -48,7 +48,7 @@ def get_student_db_id(line_user_id, auto_create=True):
 # ----------------------------------------
 # 🔥 P2.7：【重大更新】 Webhook 路由
 # ----------------------------------------
-@app.route("/callback", methods=['POST'])
+@app.route("/webhook", methods=['POST'])
 def callback():
     # 取得 X-Line-Signature 標頭
     signature = request.headers['X-Line-Signature']
