@@ -28,12 +28,59 @@ def init_db():
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute("PRAGMA foreign_keys = ON;")
-        # ... (所有 CREATE TABLE 程式碼 100% 不變) ...
-        cursor.execute('''CREATE TABLE IF NOT EXISTS creators (...)''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS students (...)''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS question_banks (...)''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS student_access (...)''')
-        cursor.execute('''CREATE TABLE IF NOT EXISTS answer_logs (...)''')
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS creators (
+            creator_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS students (
+            student_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            line_user_id TEXT UNIQUE,
+            email TEXT UNIQUE,
+            password_hash TEXT,
+            account_linked BOOLEAN DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS question_banks (
+            bank_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            creator_id INTEGER NOT NULL,
+            bank_name TEXT NOT NULL,
+            invite_code TEXT UNIQUE NOT NULL,
+            requires_approval BOOLEAN DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (creator_id) REFERENCES creators (creator_id)
+        )
+        ''')
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS student_access (
+            access_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER NOT NULL,
+            bank_id INTEGER NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            requested_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(student_id, bank_id),
+            FOREIGN KEY (student_id) REFERENCES students (student_id),
+            FOREIGN KEY (bank_id) REFERENCES question_banks (bank_id)
+        )
+        ''')
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS answer_logs (
+            log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER NOT NULL,
+            bank_id INTEGER NOT NULL,
+            question_key TEXT NOT NULL,
+            was_correct BOOLEAN NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (student_id) REFERENCES students (student_id),
+            FOREIGN KEY (bank_id) REFERENCES question_banks (bank_id)
+        )
+        ''')
         conn.commit()
         conn.close()
         print(f"資料庫 {DB_NAME} 初始化/檢查成功。")
@@ -46,10 +93,11 @@ def get_student_db_id(line_user_id, auto_create=True):
     pass
 
 # ----------------------------------------
-# 🔥 P2.7：【重大更新】 Webhook 路由
+# 🔥 P2.14：【終極修復】 Webhook 路由
+# (已將 /callback 改為 /webhook)
 # ----------------------------------------
 @app.route("/webhook", methods=['POST'])
-def callback():
+def webhook():
     # 取得 X-Line-Signature 標頭
     signature = request.headers['X-Line-Signature']
 
@@ -57,26 +105,20 @@ def callback():
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
-    # 【P2.7 核心修復】
-    # 用 try...except 處理 LINE 的「測試訊號」(它會是空的 body)
+    # (P2.7 的防當機 try...except 邏輯 ... 100% 不變)
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         print("Invalid signature. Please check your channel secret.")
         abort(400)
     except Exception as e:
-        # 捕捉所有其他錯誤，例如 LINE SDK 解析空 body 時
-        # 讓伺服器「活著」，並回傳 200 OK
-        # 這樣 LINE 才會認為 Webhook 驗證成功！
         print(f"Webhook handler error: {e}")
 
-    # 【關鍵！】 永遠回傳 200 OK
-    # 這樣 LINE 才會「驗證成功」！
     return 'OK'
 
 # ----------------------------------------
-# 🔥 P2.7：【重大更新】 訊息處理
-# (這就是 P2.3 的邏輯，我們現在把它放進 v2.4)
+# (handle_message 路由 ... 100% 完全不變)
+# (P2.7 / v2.4 的 LIFF 按鈕邏輯)
 # ----------------------------------------
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -84,7 +126,6 @@ def handle_message(event):
     user_msg = event.message.text
     user_id = event.source.user_id
     
-    # 檢查學生是否「已綁定」
     student_id, is_linked = get_student_db_id(user_id)
     
     if not is_linked:
@@ -132,9 +173,10 @@ def liff_login_page():
     return render_template('liff_login.html')
 
 # (api_register_bind 路由 ... 100% 完全不變)
+# (P2.2 / v2.2 的 API 邏輯)
 @app.route("/api/register-bind", methods=['POST'])
 def api_register_bind():
-    # ... (我們 v2.2 的 API 邏輯 100% 不變)
+    # ... (程式碼不變)
     pass
 
 # (啟動伺服器 ... 100% 完全不變)
